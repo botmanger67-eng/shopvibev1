@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - E-Commerce Store{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Checkout</h1>
+
+    {% if cart_items %}
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-md-7">
+            <h3>Order Summary</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ "%.2f"|format(item.product.price) }}</td>
+                        <td>${{ "%.2f"|format(item.total_price) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3" class="text-end">Grand Total:</th>
+                        <th>${{ "%.2f"|format(grand_total) }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Checkout Form -->
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Shipping Details</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('checkout') }}">
+                        {{ form.hidden_tag() if form else '' }}
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" required
+                                      placeholder="Street, city, postal code, country">{{ address or '' }}</textarea>
+                            <div class="invalid-feedback">Please enter your shipping address.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone"
+                                   value="{{ phone or '' }}" required
+                                   placeholder="+1 (555) 123-4567">
+                            <div class="invalid-feedback">Please enter a valid phone number.</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Place Order
+                            </button>
+                            <a href="{{ url_for('cart') }}" class="btn btn-outline-secondary">
+                                Back to Cart
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty Cart Message -->
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <h4 class="alert-heading">Your cart is empty!</h4>
+                <p>You need to add items to your cart before checkout.</p>
+                <hr>
+                <a href="{{ url_for('shop') }}" class="btn btn-primary">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Enable Bootstrap form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}
