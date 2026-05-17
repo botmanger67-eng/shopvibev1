@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Home - E-Commerce{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Welcome to Our Store</h1>
+    <p>Explore our great selection of products.</p>
+    <a href="{{ url_for('shop') }}" class="btn btn-primary">Shop Now</a>
+  </div>
+</section>
+<!-- Featured Products Grid -->
+<section class="featured-products">
+  <h2>Featured Products</h2>
+  {% if products %}
+    <div class="product-grid">
+      {% for product in products %}
+        <div class="product-card">
+          <a href="{{ url_for('product_detail', product_id=product.id) }}">
+            <img src="{{ url_for('static', filename='images/' + product.image) if product.image else url_for('static', filename='images/default.jpg') }}" alt="{{ product.name }}">
+            <h3>{{ product.name }}</h3>
+            <p class="price">${{ "%.2f"|format(product.price) }}</p>
+          </a>
+          <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-add-cart">Add to Cart</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No featured products available at the moment. Check back later.</p>
+  {% endif %}
+</section>
+{% endblock %}
