@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ShopEase</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-dashboard">
+    <header class="admin-header">
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="admin-nav__logo">ShopEase Admin</a>
+            <ul class="admin-nav__links">
+                <li><a href="{{ url_for('admin_orders_list') }}">Orders</a></li>
+                <li><a href="{{ url_for('admin_products_list') }}">Products</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="admin-main">
+        <div class="container">
+            <h1 class="admin-main__title">Admin Dashboard</h1>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Products</h3>
+                    <p class="stat-value">{{ total_products|default(0) }}</p>
+                    <a href="{{ url_for('admin_products_list') }}" class="stat-action">Manage Products</a>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Orders</h3>
+                    <p class="stat-value">{{ total_orders|default(0) }}</p>
+                    <a href="{{ url_for('admin_orders_list') }}" class="stat-action">View Orders</a>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <p class="stat-value">{{ total_users|default(0) }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Revenue</h3>
+                    <p class="stat-value">${{ total_revenue|default(0) }}</p>
+                </div>
+            </div>
+
+            <div class="recent-orders">
+                <h2>Recent Orders</h2>
+                {% if recent_orders %}
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders[:5] %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.user.username }}</td>
+                            <td>${{ order.total }}</td>
+                            <td>{{ order.status }}</td>
+                            <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No recent orders.</p>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-actions">
+                <a href="{{ url_for('admin_products_new') }}" class="btn btn-primary">Add New Product</a>
+                <a href="{{ url_for('admin_orders_list') }}" class="btn btn-secondary">View All Orders</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
