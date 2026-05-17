@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Order History - E-Shop{% endblock %}
+
+{% block content %}
+<div class="container orders-page">
+    <h1 class="page-title">My Orders</h1>
+
+    {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-id">Order #{{ order.id }}</span>
+                        <span class="order-date">{{ order.created_at.strftime('%B %d, %Y %I:%M %p') }}</span>
+                        <span class="order-status {% if order.status == 'shipped' %}status-shipped{% elif order.status == 'delivered' %}status-delivered{% elif order.status == 'cancelled' %}status-cancelled{% else %}status-pending{% endif %}">
+                            {{ order.status.title() }}
+                        </span>
+                    </div>
+                    <div class="order-details">
+                        <div class="order-items">
+                            <table class="order-items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order.items %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url_for('product_detail', product_id=item.product.id) }}">
+                                                    {{ item.product.name }}
+                                                </a>
+                                            </td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>${{ "%.2f"|format(item.price) }}</td>
+                                            <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="order-summary">
+                            <div class="order-total">
+                                <strong>Total:</strong> ${{ "%.2f"|format(order.total_amount) }}
+                            </div>
+                            <div class="order-shipping-address">
+                                <strong>Shipping Address:</strong><br>
+                                {{ order.shipping_address }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-orders">
+            <p>You have no orders yet.</p>
+            <a href="{{ url_for('shop') }}" class="btn btn-primary">Start Shopping</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .orders-page {
+        padding: 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .page-title {
+        color: #333;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+    }
+    .order-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8f9fa;
+        padding: 15px 20px;
+        border-bottom: 1px solid #ddd;
+    }
+    .order-id {
+        font-weight: bold;
+        color: #007bff;
+    }
+    .order-date {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    .order-status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .status-pending {
+        background: #ffc107;
+        color: #856404;
+    }
+    .status-shipped {
+        background: #17a2b8;
+        color: #fff;
+    }
+    .status-delivered {
+        background: #28a745;
+        color: #fff;
+    }
+    .status-cancelled {
+        background: #dc3545;
+        color: #fff;
+    }
+    .order-details {
+        padding: 20px;
+    }
+    .order-items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+    }
+    .order-items-table th, .order-items-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    .order-items-table th {
+        background: #f1f1f1;
+        font-weight: 600;
+    }
+    .order-items-table td a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .order-items-table td a:hover {
+        text-decoration: underline;
+    }
+    .order-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-top: 10px;
+        border-top: 2px solid #007bff;
+    }
+    .order-total {
+        font-size: 1.2em;
+        color: #28a745;
+    }
+    .order-shipping-address {
+        max-width: 400px;
+        text-align: right;
+        color: #555;
+        font-size: 0.95em;
+    }
+    .empty-orders {
+        text-align: center;
+        padding: 40px 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .empty-orders p {
+        font-size: 1.2em;
+        color: #666;
+        margin-bottom: 20px;
+    }
+    .btn-primary {
+        display: inline-block;
+        padding: 10px 30px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 1em;
+        text-decoration: none;
+        transition: background 0.3s;
+    }
+    .btn-primary:hover {
+        background: #0056b3;
+    }
+</style>
+{% endblock %}
