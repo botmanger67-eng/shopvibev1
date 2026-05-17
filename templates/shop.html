@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Products - E-Commerce</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% extends "base.html" %}
+    {% block content %}
+    <div class="container shop-page">
+        <h1>All Products</h1>
+
+        <!-- Search Bar -->
+        <form class="search-form" method="GET" action="{{ url_for('shop') }}">
+            <div class="input-group">
+                <input type="text" name="q" placeholder="Search products..." value="{{ request.args.get('q', '') }}" aria-label="Search products">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+
+        <!-- Category Filter -->
+        <div class="category-filter">
+            <label for="category">Filter by category:</label>
+            <select name="category" id="category" onchange="window.location.href = this.value ? '{{ url_for('shop') }}?category=' + encodeURIComponent(this.value) : '{{ url_for('shop') }}'">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Product Listing -->
+        <div class="product-grid">
+            {% if products %}
+                {% for product in products %}
+                <div class="product-card">
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                        <img src="{{ product.image_url or url_for('static', filename='images/placeholder.png') }}" alt="{{ product.name }}" class="product-image">
+                    </a>
+                    <div class="product-info">
+                        <h3><a href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a></h3>
+                        <p class="product-price">${{ "%.2f"|format(product.price) }}</p>
+                        <form action="{{ url_for('add_to_cart') }}" method="POST">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-add-cart">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-products">No products found. Try a different search or category.</p>
+            {% endif %}
+        </div>
+
+        <!-- Optional Pagination -->
+        {% if pagination %}
+        <div class="pagination">
+            {% if pagination.has_prev %}
+            <a href="{{ url_for('shop', page=pagination.prev_num, q=request.args.get('q'), category=request.args.get('category')) }}" class="btn btn-outline">&laquo; Previous</a>
+            {% endif %}
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    <a href="{{ url_for('shop', page=page_num, q=request.args.get('q'), category=request.args.get('category')) }}" class="btn {% if page_num == pagination.page %}btn-primary{% else %}btn-outline{% endif %}">{{ page_num }}</a>
+                {% else %}
+                    <span class="ellipsis">...</span>
+                {% endif %}
+            {% endfor %}
+            {% if pagination.has_next %}
+            <a href="{{ url_for('shop', page=pagination.next_num, q=request.args.get('q'), category=request.args.get('category')) }}" class="btn btn-outline">Next &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endblock %}
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
