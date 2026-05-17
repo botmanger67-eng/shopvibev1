@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Manage Products{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Manage Products</h1>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Add Product Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>Add New Product</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin_products') }}" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control", placeholder="Product name") }}
+                    {% for error in form.name.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control", rows="3", placeholder="Product description") }}
+                    {% for error in form.description.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        {{ form.price.label(class="form-label") }}
+                        {{ form.price(class="form-control", placeholder="0.00", step="0.01") }}
+                        {% for error in form.price.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ form.stock.label(class="form-label") }}
+                        {{ form.stock(class="form-control", placeholder="0") }}
+                        {% for error in form.stock.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ form.category.label(class="form-label") }}
+                        {{ form.category(class="form-control") }}
+                        {% for error in form.category.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form.image_url.label(class="form-label") }}
+                    {{ form.image_url(class="form-control", placeholder="Image URL (optional)") }}
+                    {% for error in form.image_url.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary">Add Product</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product List -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Current Products ({{ products|length }})</h2>
+        </div>
+        <div class="card-body">
+            {% if products %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Category</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr>
+                                <td>{{ product.id }}</td>
+                                <td>
+                                    {% if product.image_url %}
+                                        <img src="{{ product.image_url }}" alt="{{ product.name }}" style="width:60px; height:60px; object-fit:cover;">
+                                    {% else %}
+                                        <span class="text-muted">No image</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ product.name }}</td>
+                                <td>${{ "%.2f"|format(product.price) }}</td>
+                                <td>{{ product.stock }}</td>
+                                <td>{{ product.category if product.category else 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    <form method="POST" action="{{ url_for('admin_delete_product', product_id=product.id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete {{ product.name }}?');">
+                                        {{ delete_form.hidden_tag() }}
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-center">No products yet. Use the form above to add your first product.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
